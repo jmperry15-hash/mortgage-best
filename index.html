@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mortgage Calculator</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f0f4f8;
+    color: #1a2535;
+    min-height: 100vh;
+  }
+  header {
+    background: #1e3a5f;
+    color: white;
+    padding: 24px 32px;
+  }
+  header h1 { font-size: 1.6rem; font-weight: 700; }
+  header p { font-size: 0.875rem; color: #a8c4e0; margin-top: 4px; }
+
+  .tab-bar {
+    background: #1e3a5f;
+    display: flex;
+    padding: 0 32px;
+    gap: 4px;
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    color: #a8c4e0;
+    padding: 12px 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .tab-btn:hover { color: white; }
+  .tab-btn.active { color: white; border-bottom-color: #4a9eda; }
+
+  .tab-content { display: none; padding: 28px 32px; }
+  .tab-content.active { display: block; }
+
+  .card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  .card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e3a5f;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e8eef5;
+  }
+
+  /* Scenario inputs grid */
+  .scenarios-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+  .scenario-panel { background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); padding: 24px; }
+  .scenario-panel h2 { font-size: 1rem; font-weight: 700; color: #1e3a5f; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid #e8eef5; }
+
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 0.8rem; font-weight: 600; color: #4a5568; margin-bottom: 5px; }
+  .field input, .field select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid #d1dce8;
+    border-radius: 7px;
+    font-size: 0.95rem;
+    color: #1a2535;
+    background: #f8fafc;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .field input:focus, .field select:focus { border-color: #4a9eda; background: white; }
+
+  .dp-row { display: flex; gap: 8px; align-items: center; }
+  .dp-row input { flex: 1; }
+  .dp-toggle {
+    display: flex;
+    border: 1.5px solid #d1dce8;
+    border-radius: 7px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .dp-toggle button {
+    padding: 10px 12px;
+    border: none;
+    background: #f8fafc;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: #4a5568;
+    transition: background 0.15s, color 0.15s;
+  }
+  .dp-toggle button.active { background: #1e3a5f; color: white; }
+
+  .calc-btn {
+    display: block;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto 28px;
+    padding: 14px;
+    background: #1e3a5f;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: background 0.2s;
+  }
+  .calc-btn:hover { background: #2a4f7f; }
+
+  /* Comparison table */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+  .compare-table th {
+    text-align: left;
+    padding: 10px 14px;
+    background: #f0f4f8;
+    color: #1e3a5f;
+    font-weight: 700;
+    border-bottom: 2px solid #d1dce8;
+  }
+  .compare-table th:not(:first-child) { text-align: right; }
+  .compare-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #e8eef5;
+    color: #2d3748;
+  }
+  .compare-table td:not(:first-child) { text-align: right; font-weight: 600; }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table tr:hover td { background: #f8fafc; }
+  .compare-table .row-label { color: #4a5568; font-weight: 500; }
+
+  .var-save { color: #16a34a; font-weight: 700; }
+  .var-cost { color: #dc2626; font-weight: 700; }
+  .var-neutral { color: #64748b; font-weight: 600; }
+
+  /* Charts row */
+  .charts-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+  .chart-container { position: relative; height: 280px; }
+
+  /* Detail tab */
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .result-item {
+    background: #f0f4f8;
+    border-radius: 8px;
+    padding: 16px;
+    border-left: 4px solid #1e3a5f;
+  }
+  .result-item .label { font-size: 0.78rem; color: #64748b; font-weight: 500; margin-bottom: 4px; }
+  .result-item .value { font-size: 1.1rem; font-weight: 700; color: #1e3a5f; }
+
+  .amort-table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+  .amort-table th {
+    padding: 9px 12px;
+    background: #f0f4f8;
+    color: #1e3a5f;
+    font-weight: 700;
+    border-bottom: 2px solid #d1dce8;
+    text-align: right;
+  }
+  .amort-table th:first-child { text-align: left; }
+  .amort-table td { padding: 8px 12px; border-bottom: 1px solid #e8eef5; text-align: right; color: #2d3748; }
+  .amort-table td:first-child { text-align: left; font-weight: 600; }
+  .amort-table tr:last-child td { border-bottom: none; font-weight: 700; background: #f8fafc; }
+  .amort-table tr:hover td { background: #f0f4f8; }
+
+  /* Bar chart */
+  .bar-chart-section { margin-top: 24px; }
+  .bar-row { display: flex; align-items: center; margin-bottom: 8px; font-size: 0.78rem; }
+  .bar-row .year-label { width: 52px; flex-shrink: 0; color: #4a5568; font-weight: 600; }
+  .bar-track { flex: 1; display: flex; height: 22px; border-radius: 4px; overflow: hidden; background: #e8eef5; }
+  .bar-principal { background: #1e3a5f; height: 100%; }
+  .bar-interest { background: #94b4d4; height: 100%; }
+  .bar-label { margin-left: 10px; white-space: nowrap; color: #4a5568; font-weight: 500; min-width: 160px; }
+  .bar-legend { display: flex; gap: 20px; margin-bottom: 14px; font-size: 0.8rem; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 2px; display: inline-block; margin-right: 5px; vertical-align: middle; }
+
+  @media (max-width: 768px) {
+    .scenarios-grid { grid-template-columns: 1fr; }
+    .charts-row { grid-template-columns: 1fr; }
+    .tab-content { padding: 16px; }
+    header { padding: 16px; }
+    .tab-bar { padding: 0 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Mortgage Calculator</h1>
+  <p>Compare two loan scenarios and explore detailed amortization breakdowns.</p>
+</header>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('compare')">Compare</button>
+  <button class="tab-btn" onclick="showTab('detail1')">Loan #1 Details</button>
+  <button class="tab-btn" onclick="showTab('detail2')">Loan #2 Details</button>
+</div>
+
+<!-- TAB 1: COMPARE -->
+<div id="tab-compare" class="tab-content active">
+  <div class="scenarios-grid">
+    <div class="scenario-panel">
+      <h2>Scenario 1</h2>
+      <div class="field"><label>Home price ($)</label><input type="number" id="s1_price" value="2000000" min="0"></div>
+      <div class="field">
+        <label>Down payment</label>
+        <div class="dp-row">
+          <input type="number" id="s1_dp" value="50" min="0">
+          <div class="dp-toggle">
+            <button id="s1_dp_dollar" class="active" onclick="setDPMode(1,'dollar')">$</button>
+            <button id="s1_dp_pct" onclick="setDPMode(1,'pct')">%</button>
+          </div>
+        </div>
+      </div>
+      <div class="field"><label>Interest rate (annual %)</label><input type="number" id="s1_rate" value="6" step="0.01" min="0"></div>
+      <div class="field"><label>Loan term (years)</label><input type="number" id="s1_term" value="10" min="1"></div>
+      <div class="field"><label>Extra monthly payment ($)</label><input type="number" id="s1_extra" value="0" min="0"></div>
+    </div>
+    <div class="scenario-panel">
+      <h2>Scenario 2</h2>
+      <div class="field"><label>Home price ($)</label><input type="number" id="s2_price" value="2000000" min="0"></div>
+      <div class="field">
+        <label>Down payment</label>
+        <div class="dp-row">
+          <input type="number" id="s2_dp" value="50" min="0">
+          <div class="dp-toggle">
+            <button id="s2_dp_dollar" class="active" onclick="setDPMode(2,'dollar')">$</button>
+            <button id="s2_dp_pct" onclick="setDPMode(2,'pct')">%</button>
+          </div>
+        </div>
+      </div>
+      <div class="field"><label>Interest rate (annual %)</label><input type="number" id="s2_rate" value="5.5" step="0.01" min="0"></div>
+      <div class="field"><label>Loan term (years)</label><input type="number" id="s2_term" value="15" min="1"></div>
+      <div class="field"><label>Extra monthly payment ($)</label><input type="number" id="s2_extra" value="0" min="0"></div>
+    </div>
+  </div>
+
+  <button class="calc-btn" onclick="calculate()">Calculate Mortgage</button>
+
+  <div class="card">
+    <div class="card-title">Loan Summary Comparison</div>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Scenario 1</th>
+          <th>Scenario 2</th>
+          <th>Variance (S2 − S1)</th>
+        </tr>
+      </thead>
+      <tbody id="compare-tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="charts-row">
+    <div class="card">
+      <div class="card-title">Total Interest Paid Comparison</div>
+      <div class="chart-container"><canvas id="interestBarChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Remaining Balance Over Time</div>
+      <div class="chart-container"><canvas id="balanceLineChart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 2: LOAN 1 DETAIL -->
+<div id="tab-detail1" class="tab-content">
+  <div class="card">
+    <div class="card-title">Scenario 1 — Results Summary</div>
+    <div class="results-grid" id="d1-summary"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Yearly Amortization Breakdown</div>
+    <div style="overflow-x:auto"><table class="amort-table" id="d1-amort-table"></table></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Principal vs Interest by Year</div>
+    <div class="bar-legend">
+      <span><span class="legend-dot" style="background:#1e3a5f"></span>Principal %</span>
+      <span><span class="legend-dot" style="background:#94b4d4"></span>Interest %</span>
+    </div>
+    <div id="d1-bar-chart"></div>
+  </div>
+</div>
+
+<!-- TAB 3: LOAN 2 DETAIL -->
+<div id="tab-detail2" class="tab-content">
+  <div class="card">
+    <div class="card-title">Scenario 2 — Results Summary</div>
+    <div class="results-grid" id="d2-summary"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Yearly Amortization Breakdown</div>
+    <div style="overflow-x:auto"><table class="amort-table" id="d2-amort-table"></table></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Principal vs Interest by Year</div>
+    <div class="bar-legend">
+      <span><span class="legend-dot" style="background:#1e3a5f"></span>Principal %</span>
+      <span><span class="legend-dot" style="background:#94b4d4"></span>Interest %</span>
+    </div>
+    <div id="d2-bar-chart"></div>
+  </div>
+</div>
+
+<script>
+// ---- State ----
+const dpMode = { 1: 'dollar', 2: 'dollar' };
+let interestChart = null;
+let balanceChart = null;
+
+// ---- Helpers ----
+function fmt(n) {
+  if (n === null || n === undefined || isNaN(n)) return '—';
+  return '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function fmtPct(n) {
+  if (n === null || isNaN(n)) return '—';
+  return n.toFixed(2) + '%';
+}
+function fmtVar(n, lowerIsBetter = true) {
+  if (n === null || isNaN(n)) return { text: '—', cls: 'var-neutral' };
+  const saves = lowerIsBetter ? n < 0 : n > 0;
+  const costs = lowerIsBetter ? n > 0 : n < 0;
+  const sign = n > 0 ? '+' : '';
+  const text = sign + '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const cls = n === 0 ? 'var-neutral' : saves ? 'var-save' : 'var-cost';
+  return { text: (n < 0 ? '-' : sign) + '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), cls };
+}
+function fmtVarNum(n, lowerIsBetter = true) {
+  if (n === null || isNaN(n)) return { text: '—', cls: 'var-neutral' };
+  const saves = lowerIsBetter ? n < 0 : n > 0;
+  const sign = n > 0 ? '+' : '';
+  const text = sign + n.toFixed(2);
+  const cls = n === 0 ? 'var-neutral' : saves ? 'var-save' : 'var-cost';
+  return { text, cls };
+}
+
+function setDPMode(s, mode) {
+  dpMode[s] = mode;
+  document.getElementById(`s${s}_dp_dollar`).classList.toggle('active', mode === 'dollar');
+  document.getElementById(`s${s}_dp_pct`).classList.toggle('active', mode === 'pct');
+}
+
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  const idx = ['compare','detail1','detail2'].indexOf(name);
+  document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+}
+
+// ---- Mortgage Math ----
+function getInputs(s) {
+  const price = parseFloat(document.getElementById(`s${s}_price`).value) || 0;
+  const dpVal = parseFloat(document.getElementById(`s${s}_dp`).value) || 0;
+  const dp = dpMode[s] === 'pct' ? price * dpVal / 100 : dpVal;
+  const rate = parseFloat(document.getElementById(`s${s}_rate`).value) || 0;
+  const term = parseInt(document.getElementById(`s${s}_term`).value) || 0;
+  const extra = parseFloat(document.getElementById(`s${s}_extra`).value) || 0;
+  return { price, dp, rate, term, extra };
+}
+
+function calcLoan(price, dp, annualRate, termYears, extraMonthly) {
+  const P = price - dp;
+  const n = termYears * 12;
+  const r = annualRate / 100 / 12;
+
+  let scheduledPayment;
+  if (r === 0) {
+    scheduledPayment = P / n;
+  } else {
+    scheduledPayment = P * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+  }
+
+  // Amortization with extra payments
+  let balance = P;
+  let totalInterest = 0;
+  let totalExtra = 0;
+  let monthCount = 0;
+  const monthlyData = []; // {month, payment, principal, interest, extra, balance}
+
+  for (let m = 1; m <= n && balance > 0.005; m++) {
+    const interestThisMonth = balance * r;
+    let principalThisMonth = scheduledPayment - interestThisMonth;
+    if (principalThisMonth < 0) principalThisMonth = 0;
+
+    let extraThisMonth = extraMonthly;
+    if (principalThisMonth + extraThisMonth > balance) {
+      extraThisMonth = Math.max(0, balance - principalThisMonth);
+    }
+    if (principalThisMonth > balance) principalThisMonth = balance;
+
+    balance -= (principalThisMonth + extraThisMonth);
+    if (balance < 0.005) balance = 0;
+
+    totalInterest += interestThisMonth;
+    totalExtra += extraThisMonth;
+    monthCount++;
+
+    monthlyData.push({
+      month: m,
+      payment: scheduledPayment,
+      principal: principalThisMonth,
+      interest: interestThisMonth,
+      extra: extraThisMonth,
+      balance: balance
+    });
+  }
+
+  // Yearly rollup
+  const yearlyData = [];
+  for (let y = 1; y <= termYears; y++) {
+    const months = monthlyData.filter(m => m.month > (y-1)*12 && m.month <= y*12);
+    if (months.length === 0) break;
+    const totalPaid = months.reduce((a, m) => a + m.payment + m.extra, 0);
+    const principalPaid = months.reduce((a, m) => a + m.principal + m.extra, 0);
+    const interestPaid = months.reduce((a, m) => a + m.interest, 0);
+    const endBalance = months[months.length - 1].balance;
+    yearlyData.push({
+      year: y,
+      totalPaid,
+      principalPaid,
+      interestPaid,
+      endBalance,
+      pctPrincipal: totalPaid > 0 ? principalPaid / totalPaid * 100 : 0,
+      pctInterest: totalPaid > 0 ? interestPaid / totalPaid * 100 : 0
+    });
+  }
+
+  const scheduledPayments = n;
+  const actualPayments = monthCount;
+  const yearsSaved = (scheduledPayments - actualPayments) / 12;
+
+  return {
+    loanAmount: P,
+    scheduledPayment,
+    scheduledPayments,
+    actualPayments,
+    yearsSaved,
+    totalExtra,
+    totalInterest,
+    totalCost: P + totalInterest,
+    monthlyData,
+    yearlyData
+  };
+}
+
+// ---- Render ----
+function calculate() {
+  const i1 = getInputs(1);
+  const i2 = getInputs(2);
+  const r1 = calcLoan(i1.price, i1.dp, i1.rate, i1.term, i1.extra);
+  const r2 = calcLoan(i2.price, i2.dp, i2.rate, i2.term, i2.extra);
+
+  renderComparison(r1, r2);
+  renderCharts(r1, r2);
+  renderDetail(1, r1);
+  renderDetail(2, r2);
+}
+
+function renderComparison(r1, r2) {
+  const rows = [
+    { label: 'Loan amount', v1: r1.loanAmount, v2: r2.loanAmount, lower: true, currency: true },
+    { label: 'Scheduled monthly payment', v1: r1.scheduledPayment, v2: r2.scheduledPayment, lower: true, currency: true },
+    { label: 'Scheduled number of payments', v1: r1.scheduledPayments, v2: r2.scheduledPayments, lower: true, currency: false, isCount: true },
+    { label: 'Actual number of payments', v1: r1.actualPayments, v2: r2.actualPayments, lower: true, currency: false, isCount: true },
+    { label: 'Years saved off original term', v1: r1.yearsSaved, v2: r2.yearsSaved, lower: false, currency: false, isYears: true },
+    { label: 'Total early payments', v1: r1.totalExtra, v2: r2.totalExtra, lower: true, currency: true },
+    { label: 'Total interest paid', v1: r1.totalInterest, v2: r2.totalInterest, lower: true, currency: true },
+    { label: 'Total cost (principal + interest)', v1: r1.totalCost, v2: r2.totalCost, lower: true, currency: true },
+  ];
+
+  let html = '';
+  for (const row of rows) {
+    let v1str, v2str, varStr, varCls;
+    if (row.isCount) {
+      v1str = row.v1.toString();
+      v2str = row.v2.toString();
+      const diff = row.v2 - row.v1;
+      const sign = diff > 0 ? '+' : '';
+      varStr = sign + diff;
+      varCls = diff === 0 ? 'var-neutral' : (row.lower ? (diff < 0 ? 'var-save' : 'var-cost') : (diff > 0 ? 'var-save' : 'var-cost'));
+    } else if (row.isYears) {
+      v1str = row.v1.toFixed(2) + ' yrs';
+      v2str = row.v2.toFixed(2) + ' yrs';
+      const diff = row.v2 - row.v1;
+      const sign = diff > 0 ? '+' : '';
+      varStr = sign + diff.toFixed(2) + ' yrs';
+      varCls = diff === 0 ? 'var-neutral' : (diff > 0 ? 'var-save' : 'var-cost');
+    } else {
+      v1str = fmt(row.v1);
+      v2str = fmt(row.v2);
+      const diff = row.v2 - row.v1;
+      const v = fmtVar(diff, row.lower);
+      varStr = v.text;
+      varCls = v.cls;
+    }
+    html += `<tr>
+      <td class="row-label">${row.label}</td>
+      <td>${v1str}</td>
+      <td>${v2str}</td>
+      <td class="${varCls}">${varStr}</td>
+    </tr>`;
+  }
+  document.getElementById('compare-tbody').innerHTML = html;
+}
+
+function renderCharts(r1, r2) {
+  // Bar chart: total interest
+  if (interestChart) interestChart.destroy();
+  const ibCtx = document.getElementById('interestBarChart').getContext('2d');
+  interestChart = new Chart(ibCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Scenario 1', 'Scenario 2'],
+      datasets: [{
+        label: 'Total Interest Paid',
+        data: [r1.totalInterest, r2.totalInterest],
+        backgroundColor: ['#1e3a5f', '#4a9eda'],
+        borderRadius: 5,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } },
+      scales: {
+        y: { ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'k' }, grid: { color: '#e8eef5' } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+
+  // Line chart: balance over time
+  if (balanceChart) balanceChart.destroy();
+  const blCtx = document.getElementById('balanceLineChart').getContext('2d');
+
+  // Monthly balance arrays
+  const max_months = Math.max(r1.monthlyData.length, r2.monthlyData.length);
+  const labels = [];
+  const b1 = [], b2 = [];
+  for (let m = 0; m <= max_months; m++) {
+    if (m % 12 === 0) labels.push('Yr ' + (m/12));
+    else labels.push('');
+    const d1 = r1.monthlyData[m - 1];
+    const d2 = r2.monthlyData[m - 1];
+    b1.push(m === 0 ? r1.loanAmount : (d1 ? d1.balance : 0));
+    b2.push(m === 0 ? r2.loanAmount : (d2 ? d2.balance : 0));
+  }
+
+  balanceChart = new Chart(blCtx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Scenario 1', data: b1, borderColor: '#1e3a5f', backgroundColor: 'rgba(30,58,95,0.08)', fill: true, tension: 0.3, pointRadius: 0 },
+        { label: 'Scenario 2', data: b2, borderColor: '#4a9eda', backgroundColor: 'rgba(74,158,218,0.08)', fill: true, tension: 0.3, pointRadius: 0 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + fmt(ctx.raw) } } },
+      scales: {
+        y: { ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'k' }, grid: { color: '#e8eef5' } },
+        x: { ticks: { maxRotation: 0 }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+function renderDetail(sNum, r) {
+  const id = `d${sNum}`;
+  const i = getInputs(sNum);
+
+  // Summary cards
+  const monthly = r.scheduledPayment;
+  const annual = monthly * 12;
+  const totalMortgage = r.actualPayments * r.scheduledPayment + r.totalExtra;
+  document.getElementById(`${id}-summary`).innerHTML = `
+    <div class="result-item"><div class="label">Home price</div><div class="value">${fmt(i.price)}</div></div>
+    <div class="result-item"><div class="label">Monthly mortgage payment</div><div class="value">${fmt(monthly)}</div></div>
+    <div class="result-item"><div class="label">Annual mortgage payment</div><div class="value">${fmt(annual)}</div></div>
+    <div class="result-item"><div class="label">Total mortgage paid</div><div class="value">${fmt(totalMortgage)}</div></div>
+    <div class="result-item"><div class="label">Total principal paid</div><div class="value">${fmt(r.loanAmount)}</div></div>
+    <div class="result-item"><div class="label">Total interest paid</div><div class="value">${fmt(r.totalInterest)}</div></div>
+  `;
+
+  // Amortization table
+  let thead = `<thead><tr>
+    <th>Year</th><th>Total Paid</th><th>Principal Paid</th><th>Interest Paid</th><th>Principal %</th><th>Interest %</th><th>Remaining Balance</th>
+  </tr></thead>`;
+  let tbody = '<tbody>';
+  for (const row of r.yearlyData) {
+    tbody += `<tr>
+      <td>${row.year}</td>
+      <td>${fmt(row.totalPaid)}</td>
+      <td>${fmt(row.principalPaid)}</td>
+      <td>${fmt(row.interestPaid)}</td>
+      <td>${fmtPct(row.pctPrincipal)}</td>
+      <td>${fmtPct(row.pctInterest)}</td>
+      <td>${fmt(row.endBalance)}</td>
+    </tr>`;
+  }
+  tbody += '</tbody>';
+  document.getElementById(`${id}-amort-table`).innerHTML = thead + tbody;
+
+  // Horizontal bar chart
+  let bars = '';
+  for (const row of r.yearlyData) {
+    bars += `
+      <div class="bar-row">
+        <span class="year-label">Year ${row.year}</span>
+        <div class="bar-track">
+          <div class="bar-principal" style="width:${row.pctPrincipal.toFixed(2)}%"></div>
+          <div class="bar-interest" style="width:${row.pctInterest.toFixed(2)}%"></div>
+        </div>
+        <span class="bar-label">P: ${fmtPct(row.pctPrincipal)} &nbsp;|&nbsp; I: ${fmtPct(row.pctInterest)}</span>
+      </div>`;
+  }
+  document.getElementById(`${id}-bar-chart`).innerHTML = bars;
+}
+
+// ---- Init ----
+calculate();
+</script>
+</body>
+</html>
