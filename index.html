@@ -4,41 +4,52 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mortgage Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
   :root {
-    --bg:         #000000;
-    --surface:    #1c1c1e;
-    --surface-2:  #2c2c2e;
-    --surface-3:  #3a3a3c;
-    --border:     rgba(255,255,255,0.1);
-    --border-2:   rgba(255,255,255,0.06);
-    --text:       #ffffff;
-    --text-2:     #8e8e93;
-    --text-3:     #48484a;
-    --blue:       #0a84ff;
-    --blue-light: rgba(10,132,255,0.15);
-    --green:      #30d158;
-    --green-light:rgba(48,209,88,0.15);
-    --red:        #ff453a;
-    --red-light:  rgba(255,69,58,0.15);
-    --shadow-sm:  0 1px 3px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.3);
-    --shadow-md:  0 2px 8px rgba(0,0,0,0.5), 0 8px 32px rgba(0,0,0,0.4);
-    --radius-lg:  16px;
-    --radius-md:  12px;
+    /* Neutrals */
+    --bg:         #f7f8fa;
+    --surface:    #ffffff;
+    --surface-2:  #f4f5f7;
+    --surface-3:  #ffffff;
+    --border:     #e4e7ec;
+    --border-2:   #eff1f4;
+    --border-in:  #d0d5dd;
+    --text:       #0f1729;
+    --text-2:     #667085;
+    --text-3:     #68738c;
+
+    /* Accent */
+    --blue:       #4f46e5;
+    --blue-hover: #4338ca;
+    --blue-light: #eef2ff;
+    --blue-ring:  rgba(79,70,229,0.14);
+    --blue-tint:  rgba(79,70,229,0.055);
+
+    --green:      #047857;
+    --red:        #dc2626;
+
+    --shadow-sm:  0 1px 2px rgba(16,24,40,0.04), 0 1px 3px rgba(16,24,40,0.05);
+    --shadow-md:  0 4px 8px -2px rgba(16,24,40,0.05), 0 12px 24px -6px rgba(16,24,40,0.07);
+    --radius-lg:  14px;
+    --radius-md:  10px;
     --radius-sm:  8px;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
     font-size: 15px;
-    line-height: 1.47059;
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   /* ── Nav ── */
@@ -50,56 +61,54 @@
     align-items: center;
     justify-content: space-between;
     padding: 0 32px;
-    height: 52px;
-    background: rgba(28,28,30,0.85);
-    backdrop-filter: saturate(180%) blur(20px);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    border-bottom: 0.5px solid rgba(255,255,255,0.1);
+    height: 56px;
+    background: rgba(255,255,255,0.82);
+    backdrop-filter: saturate(180%) blur(16px);
+    -webkit-backdrop-filter: saturate(180%) blur(16px);
+    border-bottom: 1px solid var(--border);
   }
-  .topnav-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+  .topnav-brand { display: flex; align-items: center; gap: 11px; }
   .nav-icon {
-    width: 28px; height: 28px;
-    background: linear-gradient(145deg, #1a73e8, #007AFF);
-    border-radius: 7px;
+    width: 30px; height: 30px;
+    background: linear-gradient(140deg, #6366f1, #4f46e5 60%, #4338ca);
+    border-radius: 9px;
     display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 1px 4px rgba(0,122,255,0.35);
+    box-shadow: 0 2px 6px rgba(79,70,229,0.28);
   }
   .nav-icon svg { display: block; }
   .nav-title {
     font-size: 15px;
     font-weight: 600;
     color: var(--text);
-    letter-spacing: -0.022em;
+    letter-spacing: -0.017em;
   }
 
   /* ── Tabs ── */
   .tab-bar {
     display: flex;
     align-items: flex-end;
-    gap: 0;
+    gap: 2px;
     padding: 0 32px;
-    background: rgba(28,28,30,0.85);
-    backdrop-filter: saturate(180%) blur(20px);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    border-bottom: 0.5px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.82);
+    backdrop-filter: saturate(180%) blur(16px);
+    -webkit-backdrop-filter: saturate(180%) blur(16px);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
   }
   .tab-btn {
     background: none;
     border: none;
     border-bottom: 2px solid transparent;
     color: var(--text-2);
-    padding: 11px 18px;
-    font-size: 13px;
+    padding: 12px 15px;
+    font-size: 13.5px;
     font-weight: 500;
     font-family: inherit;
     cursor: pointer;
-    margin-bottom: -0.5px;
-    transition: color 0.18s, border-color 0.18s;
-    letter-spacing: -0.01em;
+    white-space: nowrap;
+    margin-bottom: -1px;
+    transition: color 0.16s, border-color 0.16s;
+    letter-spacing: -0.008em;
   }
   .tab-btn:hover { color: var(--text); }
   .tab-btn.active {
@@ -109,27 +118,26 @@
   }
 
   /* ── Page layout ── */
-  .tab-content { display: none; padding: 28px 32px 48px; max-width: 1280px; margin: 0 auto; }
+  .tab-content { display: none; padding: 28px 32px 56px; max-width: 1280px; margin: 0 auto; }
   .tab-content.active { display: block; }
 
   /* ── Cards ── */
   .card {
     background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
     padding: 22px 24px;
     margin-bottom: 18px;
   }
   .card-title {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
-    color: var(--text-2);
-    letter-spacing: 0.005em;
+    color: var(--text);
+    letter-spacing: -0.012em;
     margin-bottom: 16px;
     padding-bottom: 13px;
-    border-bottom: 0.5px solid var(--border);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    border-bottom: 1px solid var(--border-2);
   }
 
   /* ── Scenario grid ── */
@@ -141,6 +149,7 @@
   }
   .scenario-panel {
     background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
     padding: 22px 24px;
@@ -151,53 +160,53 @@
     gap: 10px;
     margin-bottom: 18px;
     padding-bottom: 14px;
-    border-bottom: 0.5px solid var(--border);
+    border-bottom: 1px solid var(--border-2);
   }
   .scenario-header h2 {
     font-size: 15px;
     font-weight: 600;
     color: var(--text);
-    letter-spacing: -0.015em;
+    letter-spacing: -0.014em;
     flex: 1;
   }
   .scenario-chip {
     background: var(--blue-light);
     color: var(--blue);
     font-size: 11px;
-    font-weight: 700;
+    font-weight: 600;
     padding: 3px 9px;
     border-radius: 20px;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.02em;
   }
 
   /* ── Fields ── */
   .field { margin-bottom: 13px; }
   .field label {
     display: block;
-    font-size: 12px;
+    font-size: 12.5px;
     font-weight: 500;
     color: var(--text-2);
-    margin-bottom: 5px;
+    margin-bottom: 6px;
     letter-spacing: -0.005em;
   }
   .field input {
     width: 100%;
-    padding: 9px 13px;
-    border: 1px solid rgba(0,0,0,0.14);
+    padding: 9px 12px;
+    border: 1px solid var(--border-in);
     border-radius: var(--radius-sm);
-    font-size: 15px;
+    font-size: 14.5px;
     font-family: inherit;
+    font-variant-numeric: tabular-nums;
     color: var(--text);
-    background: var(--surface-2);
+    background: var(--surface);
     transition: border-color 0.15s, box-shadow 0.15s;
     outline: none;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.008em;
   }
-  .field input:hover { border-color: rgba(255,255,255,0.18); }
+  .field input:hover { border-color: #b4bcc9; }
   .field input:focus {
     border-color: var(--blue);
-    background: var(--surface-3);
-    box-shadow: 0 0 0 3px rgba(10,132,255,0.25);
+    box-shadow: 0 0 0 3.5px var(--blue-ring);
   }
   .field input[type=number]::-webkit-inner-spin-button,
   .field input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
@@ -207,29 +216,31 @@
   .dp-row input { flex: 1; }
   .seg-control {
     display: flex;
-    background: rgba(255,255,255,0.08);
-    border-radius: 7px;
-    padding: 2px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 3px;
     flex-shrink: 0;
   }
   .seg-control button {
     padding: 5px 13px;
     border: none;
     background: transparent;
-    border-radius: 5px;
+    border-radius: 6px;
     font-size: 13px;
     font-weight: 500;
     font-family: inherit;
     cursor: pointer;
     color: var(--text-2);
     transition: background 0.15s, color 0.15s, box-shadow 0.15s;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.008em;
   }
+  .seg-control button:hover { color: var(--text); }
   .seg-control button.active {
-    background: var(--surface-3);
+    background: var(--surface);
     color: var(--text);
     font-weight: 600;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 1px 1px rgba(0,0,0,0.2);
+    box-shadow: 0 1px 2px rgba(16,24,40,0.06), 0 1px 3px rgba(16,24,40,0.08);
   }
 
   /* ── CTA Button ── */
@@ -239,53 +250,53 @@
     justify-content: center;
     gap: 7px;
     width: 100%;
-    max-width: 320px;
+    max-width: 300px;
     margin: 0 auto 22px;
-    padding: 12px 24px;
+    padding: 11px 24px;
     background: var(--blue);
-    color: white;
+    color: #fff;
     border: none;
-    border-radius: 980px;
-    font-size: 15px;
+    border-radius: var(--radius-md);
+    font-size: 14.5px;
     font-weight: 600;
     font-family: inherit;
     cursor: pointer;
-    letter-spacing: -0.01em;
-    box-shadow: 0 2px 8px rgba(0,122,255,0.3);
-    transition: opacity 0.15s, transform 0.12s, box-shadow 0.15s;
+    letter-spacing: -0.008em;
+    box-shadow: 0 1px 2px rgba(16,24,40,0.05), 0 2px 8px rgba(79,70,229,0.22);
+    transition: background 0.15s, transform 0.12s, box-shadow 0.15s;
   }
-  .calc-btn:hover { opacity: 0.88; box-shadow: 0 4px 16px rgba(0,122,255,0.35); }
-  .calc-btn:active { transform: scale(0.97); opacity: 0.82; }
+  .calc-btn:hover { background: var(--blue-hover); box-shadow: 0 4px 14px rgba(79,70,229,0.28); }
+  .calc-btn:active { transform: scale(0.985); }
 
   /* ── Comparison table ── */
   .compare-table { width: 100%; border-collapse: collapse; font-size: 14px; }
   .compare-table th {
     text-align: left;
-    padding: 9px 14px;
+    padding: 10px 14px;
     font-size: 11px;
     font-weight: 600;
     color: var(--text-2);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    border-bottom: 0.5px solid var(--border);
+    letter-spacing: 0.055em;
+    border-bottom: 1px solid var(--border);
     background: var(--surface-2);
   }
   .compare-table th:first-child { border-radius: var(--radius-sm) 0 0 0; }
   .compare-table th:last-child { border-radius: 0 var(--radius-sm) 0 0; }
   .compare-table th:not(:first-child) { text-align: right; }
   .compare-table td {
-    padding: 10px 14px;
-    border-bottom: 0.5px solid var(--border-2);
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--border-2);
     color: var(--text);
   }
   .compare-table td:not(:first-child) {
     text-align: right;
     font-variant-numeric: tabular-nums;
     font-weight: 500;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.008em;
   }
   .compare-table tr:last-child td { border-bottom: none; }
-  .compare-table tbody tr:hover td { background: rgba(10,132,255,0.08); }
+  .compare-table tbody tr:hover td { background: var(--blue-tint); }
   .compare-table .row-label { color: var(--text-2); font-size: 14px; }
 
   .var-save { color: var(--green) !important; font-weight: 600; }
@@ -311,8 +322,8 @@
   .result-item {
     background: var(--surface-2);
     border-radius: var(--radius-md);
-    padding: 16px 18px;
-    border: 0.5px solid var(--border);
+    padding: 15px 17px;
+    border: 1px solid var(--border);
   }
   .result-item .label {
     font-size: 12px;
@@ -322,64 +333,60 @@
     letter-spacing: -0.005em;
   }
   .result-item .value {
-    font-size: 20px;
+    font-size: 21px;
     font-weight: 700;
     color: var(--text);
-    letter-spacing: -0.025em;
+    letter-spacing: -0.028em;
     font-variant-numeric: tabular-nums;
   }
 
   /* ── Amortization table ── */
   .amort-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
   .amort-table th {
-    padding: 9px 13px;
+    padding: 10px 13px;
     font-size: 11px;
     font-weight: 600;
     color: var(--text-2);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    border-bottom: 0.5px solid var(--border);
+    letter-spacing: 0.055em;
+    border-bottom: 1px solid var(--border);
     background: var(--surface-2);
     text-align: right;
   }
   .amort-table th:first-child { text-align: left; }
   .amort-table td {
     padding: 9px 13px;
-    border-bottom: 0.5px solid var(--border-2);
+    border-bottom: 1px solid var(--border-2);
     text-align: right;
     color: var(--text);
     font-variant-numeric: tabular-nums;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.008em;
   }
   .amort-table td:first-child {
     text-align: left;
     font-weight: 600;
     color: var(--text-2);
   }
-  .amort-table tr:last-child td { border-bottom: none; background: rgba(255,255,255,0.04); }
-  .amort-table tbody tr:hover td { background: rgba(10,132,255,0.08); }
+  .amort-table tr:last-child td { border-bottom: none; background: var(--surface-2); }
+  .amort-table tbody tr:hover td { background: var(--blue-tint); }
 
   /* ── Horizontal bar chart ── */
-  .bar-row {
-    display: flex;
-    align-items: center;
-    margin-bottom: 7px;
-  }
+  .bar-row { display: flex; align-items: center; margin-bottom: 7px; }
   .bar-row .year-label {
     width: 52px;
     flex-shrink: 0;
     color: var(--text-2);
     font-weight: 500;
     font-size: 12px;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.008em;
   }
   .bar-track {
     flex: 1;
     display: flex;
     height: 20px;
-    border-radius: 5px;
+    border-radius: 6px;
     overflow: hidden;
-    background: rgba(255,255,255,0.08);
+    background: var(--surface-2);
   }
   .bar-principal {
     background: var(--blue);
@@ -387,7 +394,7 @@
     transition: width 0.4s cubic-bezier(0.34,1.56,0.64,1);
   }
   .bar-interest {
-    background: rgba(10,132,255,0.35);
+    background: rgba(79,70,229,0.26);
     height: 100%;
     transition: width 0.4s cubic-bezier(0.34,1.56,0.64,1);
   }
@@ -398,7 +405,7 @@
     font-size: 12px;
     min-width: 160px;
     font-variant-numeric: tabular-nums;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.008em;
   }
   .bar-legend {
     display: flex;
@@ -411,12 +418,88 @@
     width: 10px; height: 10px;
     border-radius: 3px;
     display: inline-block;
-    margin-right: 5px;
+    margin-right: 6px;
     vertical-align: middle;
+  }
+
+  /* ── Sensitivity ── */
+  .sens-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 16px; }
+  .sens-ctl > label {
+    display: block;
+    font-size: 12.5px;
+    color: var(--text-2);
+    font-weight: 500;
+    margin-bottom: 7px;
+    letter-spacing: -0.005em;
+  }
+  .sens-ctl .seg-control { width: 100%; }
+  .sens-ctl .seg-control button { flex: 1; }
+
+  .lock-row { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 15px; border-top: 1px solid var(--border-2); }
+  .lock-chip {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 7px 11px;
+    font-size: 12px;
+    color: var(--text-2);
+  }
+  .lock-chip b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; margin-left: 6px; }
+  .lock-chip.swept { border-color: rgba(79,70,229,0.35); background: var(--blue-light); color: var(--blue); }
+  .lock-chip.swept b { color: var(--blue); }
+
+  .ab-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .sens-headline {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.5;
+    letter-spacing: -0.014em;
+    color: var(--text);
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .rule-thumb {
+    margin-top: 14px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--text-2);
+    padding: 11px 14px;
+    border-radius: var(--radius-sm);
+    background: var(--blue-light);
+    border: 1px solid rgba(79,70,229,0.18);
+  }
+  .rule-thumb b { color: var(--blue); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  .st-note {
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--text-2);
+    padding: 12px 15px;
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 18px;
+  }
+  .st-note b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  .compare-table tr.base-row td { background: var(--blue-light); }
+  .compare-table tr.base-row td:first-child::after {
+    content: 'BASE';
+    margin-left: 8px;
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--blue);
+    letter-spacing: 0.07em;
+    vertical-align: 1px;
   }
 
   @media (max-width: 768px) {
     .scenarios-grid, .charts-row { grid-template-columns: 1fr; }
+    .sens-controls, .ab-inputs { grid-template-columns: 1fr; }
     .tab-content { padding: 18px 16px 40px; }
     .topnav, .tab-bar { padding: 0 16px; }
   }
@@ -437,6 +520,8 @@
   <button class="tab-btn active" onclick="showTab('compare')">Compare</button>
   <button class="tab-btn" onclick="showTab('detail1')">Loan #1 Details</button>
   <button class="tab-btn" onclick="showTab('detail2')">Loan #2 Details</button>
+  <button class="tab-btn" onclick="showTab('sensitivity')">Sensitivity Analysis</button>
+  <button class="tab-btn" onclick="showTab('senstables')">Sensitivity Tables</button>
 </div>
 
 <!-- TAB 1: COMPARE -->
@@ -529,8 +614,8 @@
   <div class="card">
     <div class="card-title">Principal vs Interest by Year</div>
     <div class="bar-legend">
-      <span><span class="legend-dot" style="background:#007AFF"></span>Principal %</span>
-      <span><span class="legend-dot" style="background:rgba(10,132,255,0.35)"></span>Interest %</span>
+      <span><span class="legend-dot" style="background:#4f46e5"></span>Principal %</span>
+      <span><span class="legend-dot" style="background:rgba(79,70,229,0.26)"></span>Interest %</span>
     </div>
     <div id="d1-bar-chart"></div>
   </div>
@@ -549,10 +634,77 @@
   <div class="card">
     <div class="card-title">Principal vs Interest by Year</div>
     <div class="bar-legend">
-      <span><span class="legend-dot" style="background:#007AFF"></span>Principal %</span>
-      <span><span class="legend-dot" style="background:rgba(10,132,255,0.35)"></span>Interest %</span>
+      <span><span class="legend-dot" style="background:#4f46e5"></span>Principal %</span>
+      <span><span class="legend-dot" style="background:rgba(79,70,229,0.26)"></span>Interest %</span>
     </div>
     <div id="d2-bar-chart"></div>
+  </div>
+</div>
+
+<!-- ===== Sensitivity tab ===== -->
+<div id="tab-sensitivity" class="tab-content">
+  <div class="card">
+    <div class="card-title">Base Loan &amp; Variable</div>
+    <div class="sens-controls">
+      <div class="sens-ctl">
+        <label>Base loan</label>
+        <div class="seg-control">
+          <button id="sens_base_1" class="active" onclick="setSensBase(1)">Scenario 1</button>
+          <button id="sens_base_2" onclick="setSensBase(2)">Scenario 2</button>
+        </div>
+      </div>
+      <div class="sens-ctl">
+        <label>Variable to sweep</label>
+        <div class="seg-control">
+          <button id="sens_var_rate" class="active" onclick="setSensVar('rate')">Rate</button>
+          <button id="sens_var_term" onclick="setSensVar('term')">Term</button>
+          <button id="sens_var_extra" onclick="setSensVar('extra')">Extra</button>
+          <button id="sens_var_dp" onclick="setSensVar('dp')">Down pmt</button>
+        </div>
+      </div>
+    </div>
+    <div class="lock-row" id="sens-locked"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Head-to-Head</div>
+    <div class="ab-inputs">
+      <div class="field"><label id="sens-a-label">Option A</label><input type="number" id="sens_a" oninput="renderSensitivity()"></div>
+      <div class="field"><label id="sens-b-label">Option B</label><input type="number" id="sens_b" oninput="renderSensitivity()"></div>
+    </div>
+    <div class="sens-headline" id="sens-headline"></div>
+    <table class="compare-table" id="sens-ab-table"></table>
+    <div class="rule-thumb" id="sens-rule"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" id="sens-sweep-title">Full Sweep</div>
+    <div style="overflow-x:auto"><table class="compare-table" id="sens-sweep-table"></table></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" id="sens-chart-title">Sensitivity Curve</div>
+    <div class="chart-container"><canvas id="sensitivityChart"></canvas></div>
+  </div>
+</div>
+
+<!-- ===== Sensitivity Tables tab (static, fixed $500,000 loan) ===== -->
+<div id="tab-senstables" class="tab-content">
+  <div class="st-note" id="st-baseline"></div>
+
+  <div class="card">
+    <div class="card-title">Interest Rate Sensitivity</div>
+    <div style="overflow-x:auto"><table class="compare-table" id="st-rate"></table></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Loan Term Sensitivity</div>
+    <div style="overflow-x:auto"><table class="compare-table" id="st-term"></table></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Extra Monthly Payment Sensitivity</div>
+    <div style="overflow-x:auto"><table class="compare-table" id="st-extra"></table></div>
   </div>
 </div>
 
@@ -561,6 +713,9 @@
 const dpMode = { 1: 'dollar', 2: 'dollar' };
 let interestChart = null;
 let balanceChart = null;
+let sensChart = null;
+let sensBase = 1;
+let sensVar = 'rate';
 
 // ---- Helpers ----
 function fmt(n) {
@@ -589,8 +744,10 @@ function showTab(name) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
-  const idx = ['compare','detail1','detail2'].indexOf(name);
+  const idx = ['compare','detail1','detail2','sensitivity','senstables'].indexOf(name);
   document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+  // Chart.js sizes to 0 inside a display:none tab; re-measure once it is visible.
+  if (name === 'sensitivity' && sensChart) sensChart.resize();
 }
 
 // ---- Mortgage Math ----
@@ -676,6 +833,7 @@ function calculate() {
   renderCharts(r1, r2);
   renderDetail(1, r1);
   renderDetail(2, r2);
+  renderSensitivity();
 }
 
 function renderComparison(r1, r2) {
@@ -717,12 +875,12 @@ function renderComparison(r1, r2) {
 }
 
 const C = {
-  blue:      '#007AFF',
-  blue2:     '#34AADC',
-  gridColor: 'rgba(0,0,0,0.06)',
-  textMuted: '#6e6e73',
-  tooltipBg: 'rgba(30,30,32,0.96)',
-  tooltipBorder: 'rgba(255,255,255,0.12)',
+  blue:      '#4f46e5',
+  blue2:     '#0ea5e9',
+  gridColor: 'rgba(16,24,40,0.07)',
+  textMuted: '#667085',
+  tooltipBg: 'rgba(15,23,41,0.94)',
+  tooltipBorder: 'rgba(255,255,255,0.10)',
 };
 
 function mkScales() {
@@ -788,8 +946,8 @@ function renderCharts(r1, r2) {
     data: {
       labels,
       datasets: [
-        { label: 'Scenario 1', data: b1, borderColor: C.blue,  backgroundColor: 'rgba(0,122,255,0.07)', fill: true, tension: 0.4, pointRadius: 0, borderWidth: 2 },
-        { label: 'Scenario 2', data: b2, borderColor: C.blue2, backgroundColor: 'rgba(52,170,220,0.06)', fill: true, tension: 0.4, pointRadius: 0, borderWidth: 2 }
+        { label: 'Scenario 1', data: b1, borderColor: C.blue,  backgroundColor: 'rgba(79,70,229,0.08)', fill: true, tension: 0.4, pointRadius: 0, borderWidth: 2 },
+        { label: 'Scenario 2', data: b2, borderColor: C.blue2, backgroundColor: 'rgba(14,165,233,0.06)', fill: true, tension: 0.4, pointRadius: 0, borderWidth: 2 }
       ]
     },
     options: {
@@ -840,7 +998,274 @@ function renderDetail(sNum, r) {
   document.getElementById(`${id}-bar-chart`).innerHTML = bars;
 }
 
+// ---- Sensitivity Analysis ----
+// One base loan, one variable swept, everything else held constant.
+// All figures come from the same calcLoan() the Compare tab uses.
+
+function yrs(v) { return v.toFixed(2) + ' yr'; }
+
+function stepsAround(base, step, count) {
+  const out = [];
+  for (let k = -count; k <= count; k++) out.push(base + k * step);
+  return out;
+}
+
+const SENS_VARS = {
+  rate: {
+    label: 'Interest rate (annual %)', axis: 'Interest rate', unitName: '0.25%',
+    inputStep: 0.25, step: 0.25, ruleOfThumb: true,
+    get:     i => i.rate,
+    fmtVal:  v => v.toFixed(2) + '%',
+    fmtAxis: v => v.toFixed(2) + '%',
+    altB:    (base) => Math.max(0, base - 0.5),
+    sweep:   i => stepsAround(i.rate, 0.25, 6).filter(v => v >= 0)
+  },
+  term: {
+    label: 'Loan term (years)', axis: 'Loan term', unitName: '5 yr',
+    inputStep: 1, step: 5, ruleOfThumb: false,
+    get:     i => i.term,
+    fmtVal:  v => v + ' yr',
+    fmtAxis: v => v + 'y',
+    altB:    (base) => base >= 20 ? 15 : 30,
+    sweep:   () => [10, 15, 20, 25, 30]
+  },
+  extra: {
+    label: 'Extra monthly payment ($)', axis: 'Extra monthly payment', unitName: '$100/mo',
+    inputStep: 50, step: 100, ruleOfThumb: true,
+    get:     i => i.extra,
+    fmtVal:  v => fmt(v),
+    fmtAxis: v => '$' + Math.round(v),
+    altB:    (base) => base === 0 ? 500 : base + 500,
+    sweep:   () => [0, 100, 250, 500, 1000]
+  },
+  dp: {
+    label: 'Down payment ($)', axis: 'Down payment', unitName: '5% of price',
+    inputStep: 5000, step: null, ruleOfThumb: false,
+    get:     i => i.dp,
+    fmtVal:  v => fmt(v),
+    fmtAxis: v => '$' + (v / 1000).toFixed(0) + 'k',
+    altB:    (base, i) => Math.min(i.price, base + i.price * 0.05),
+    sweep:   i => [5, 10, 15, 20, 25, 30].map(p => Math.round(i.price * p / 100))
+  }
+};
+
+// Clone the base inputs with exactly one field overridden.
+function applyVar(i, key, value) {
+  const o = { price: i.price, dp: i.dp, rate: i.rate, term: i.term, extra: i.extra };
+  if (key === 'rate')  o.rate  = Math.max(0, value);
+  if (key === 'term')  o.term  = Math.max(1, Math.round(value));
+  if (key === 'extra') o.extra = Math.max(0, value);
+  if (key === 'dp')    o.dp    = Math.min(o.price, Math.max(0, value));
+  return o;
+}
+
+function runVar(i, key, value) {
+  const a = applyVar(i, key, value);
+  const r = calcLoan(a.price, a.dp, a.rate, a.term, a.extra);
+  r.value = value;
+  r.payoffYears = r.actualPayments / 12;
+  return r;
+}
+
+function setSensBase(s) {
+  sensBase = s;
+  document.getElementById('sens_base_1').classList.toggle('active', s === 1);
+  document.getElementById('sens_base_2').classList.toggle('active', s === 2);
+  syncSensInputs();
+  renderSensitivity();
+}
+
+function setSensVar(key) {
+  sensVar = key;
+  for (const k of Object.keys(SENS_VARS)) {
+    document.getElementById('sens_var_' + k).classList.toggle('active', k === key);
+  }
+  syncSensInputs();
+  renderSensitivity();
+}
+
+// Reset the A/B pair when the base loan or swept variable changes.
+function syncSensInputs() {
+  const i = getInputs(sensBase);
+  const cfg = SENS_VARS[sensVar];
+  const base = cfg.get(i);
+  const a = document.getElementById('sens_a'), b = document.getElementById('sens_b');
+  a.step = b.step = cfg.inputStep;
+  a.value = +base.toFixed(4);
+  b.value = +cfg.altB(base, i).toFixed(4);
+  document.getElementById('sens-a-label').textContent = cfg.label + ' — Option A';
+  document.getElementById('sens-b-label').textContent = cfg.label + ' — Option B';
+}
+
+function renderSensitivity() {
+  const i = getInputs(sensBase);
+  const cfg = SENS_VARS[sensVar];
+  const baseVal = cfg.get(i);
+
+  // ── Locked inputs: makes "everything else constant" visible, not just claimed.
+  const chips = [
+    ['Home price',    fmt(i.price),      'price'],
+    ['Down payment',  fmt(i.dp),         'dp'],
+    ['Rate',          fmtPct(i.rate),    'rate'],
+    ['Term',          i.term + ' yr',    'term'],
+    ['Extra monthly', fmt(i.extra),      'extra']
+  ];
+  document.getElementById('sens-locked').innerHTML = chips.map(([l, v, k]) =>
+    k === sensVar
+      ? `<div class="lock-chip swept">${l}<b>sweeping</b></div>`
+      : `<div class="lock-chip">${l}<b>${v}</b></div>`
+  ).join('');
+
+  // ── Head-to-head
+  const av = parseFloat(document.getElementById('sens_a').value) || 0;
+  const bv = parseFloat(document.getElementById('sens_b').value) || 0;
+  const A = runVar(i, sensVar, av), B = runVar(i, sensVar, bv);
+
+  const metrics = [
+    ['Monthly payment',             r => r.scheduledPayment],
+    ['Total interest',              r => r.totalInterest],
+    ['Total cost (loan + interest)', r => r.totalCost]
+  ];
+  let html = `<thead><tr><th>Metric</th><th>A · ${cfg.fmtVal(av)}</th><th>B · ${cfg.fmtVal(bv)}</th><th>B − A</th></tr></thead><tbody>`;
+  for (const [label, get] of metrics) {
+    const d = fmtVar(get(B) - get(A), true);
+    html += `<tr><td class="row-label">${label}</td><td>${fmt(get(A))}</td><td>${fmt(get(B))}</td><td class="${d.cls}">${d.text}</td></tr>`;
+  }
+  const dYears = B.payoffYears - A.payoffYears;
+  const yCls = Math.abs(dYears) < 0.005 ? 'var-neutral' : dYears < 0 ? 'var-save' : 'var-cost';
+  html += `<tr><td class="row-label">Payoff time</td><td>${yrs(A.payoffYears)}</td><td>${yrs(B.payoffYears)}</td><td class="${yCls}">${(dYears > 0 ? '+' : '') + dYears.toFixed(2)} yr</td></tr>`;
+  document.getElementById('sens-ab-table').innerHTML = html + '</tbody>';
+
+  const dInt = B.totalInterest - A.totalInterest;
+  const dMon = B.scheduledPayment - A.scheduledPayment;
+  let headline;
+  if (av === bv) {
+    headline = 'Set two different values above to compare them head to head.';
+  } else {
+    headline = `Option B (${cfg.fmtVal(bv)}) ${dInt < 0 ? 'saves' : 'costs'} ${fmt(dInt)} in total interest versus Option A (${cfg.fmtVal(av)}), and ${dMon < 0 ? 'lowers' : 'raises'} the monthly payment by ${fmt(dMon)}.`;
+    if (Math.abs(dYears) >= 0.01) {
+      headline += ` Payoff arrives ${Math.abs(dYears).toFixed(1)} yr ${dYears < 0 ? 'sooner' : 'later'}.`;
+    }
+  }
+  document.getElementById('sens-headline').textContent = headline;
+
+  // ── Rule of thumb (only where a per-step reading is honest: rate and extra)
+  const rule = document.getElementById('sens-rule');
+  if (cfg.ruleOfThumb && av !== bv) {
+    const perStep = cfg.step / (bv - av);
+    rule.style.display = '';
+    rule.innerHTML = `Rule of thumb: each <b>${cfg.unitName}</b> moves the monthly payment by about <b>${fmt(dMon * perStep)}</b> and lifetime interest by about <b>${fmt(dInt * perStep)}</b>.`;
+  } else {
+    rule.style.display = 'none';
+  }
+
+  // ── Full sweep (base value always included so it can be highlighted)
+  let vals = cfg.sweep(i).slice();
+  if (!vals.some(v => Math.abs(v - baseVal) < 1e-9)) vals.push(baseVal);
+  vals = [...new Set(vals.map(v => +v.toFixed(4)))].sort((x, y) => x - y);
+  const runs = vals.map(v => runVar(i, sensVar, v));
+  const baseCost = runVar(i, sensVar, baseVal).totalCost;
+
+  document.getElementById('sens-sweep-title').textContent = `Full Sweep — ${cfg.axis}`;
+  document.getElementById('sens-chart-title').textContent = `Sensitivity Curve — ${cfg.axis}`;
+
+  let sweep = `<thead><tr><th>${cfg.axis}</th><th>Monthly</th><th>Total interest</th><th>Total cost</th><th>Payoff</th><th>Δ cost vs base</th></tr></thead><tbody>`;
+  for (const r of runs) {
+    const isBase = Math.abs(r.value - baseVal) < 1e-9;
+    const d = fmtVar(r.totalCost - baseCost, true);
+    sweep += `<tr${isBase ? ' class="base-row"' : ''}><td class="row-label">${cfg.fmtVal(r.value)}</td><td>${fmt(r.scheduledPayment)}</td><td>${fmt(r.totalInterest)}</td><td>${fmt(r.totalCost)}</td><td>${yrs(r.payoffYears)}</td><td class="${isBase ? 'var-neutral' : d.cls}">${isBase ? '—' : d.text}</td></tr>`;
+  }
+  document.getElementById('sens-sweep-table').innerHTML = sweep + '</tbody>';
+
+  // ── Curve: total interest (left axis) against monthly payment (right axis)
+  const scales = mkScales();
+  scales.y.position = 'left';
+  scales.y1 = {
+    position: 'right',
+    ticks: { color: C.textMuted, font: { size: 11, family: '-apple-system' }, callback: v => '$' + Math.round(v).toLocaleString('en-US') },
+    grid: { display: false },
+    border: { color: 'transparent' }
+  };
+
+  if (sensChart) sensChart.destroy();
+  sensChart = new Chart(document.getElementById('sensitivityChart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: runs.map(r => cfg.fmtAxis(r.value)),
+      datasets: [
+        { label: 'Total interest', yAxisID: 'y',  data: runs.map(r => r.totalInterest),     borderColor: C.blue,  backgroundColor: 'rgba(79,70,229,0.08)', fill: true, tension: 0.35, borderWidth: 2, pointRadius: 3, pointBackgroundColor: C.blue },
+        { label: 'Monthly payment', yAxisID: 'y1', data: runs.map(r => r.scheduledPayment), borderColor: C.blue2, backgroundColor: 'transparent', fill: false, tension: 0.35, borderWidth: 2, pointRadius: 3, pointBackgroundColor: C.blue2, borderDash: [5, 4] }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: true, labels: { color: C.textMuted, font: { size: 11 }, boxWidth: 12, boxHeight: 3, useBorderRadius: true, borderRadius: 2 } },
+        tooltip: { ...mkTooltip(), callbacks: { label: ctx => ' ' + ctx.dataset.label + ': ' + fmt(ctx.raw) } }
+      },
+      scales
+    }
+  });
+}
+
+// ---- Sensitivity Tables (static) ----
+// Fixed $500,000 loan amount. Baseline 6.00% / 20 years / $0 extra.
+// Each table moves ONE variable; the other two stay at baseline.
+
+const ST_LOAN  = 500000;
+const ST_RATE  = 6;
+const ST_TERM  = 20;
+const ST_EXTRA = 0;
+
+const ST_TABLES = [
+  {
+    id: 'st-rate', heading: 'Interest rate', base: ST_RATE,
+    values: [3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9],
+    fmtVal: v => v.toFixed(2) + '%',
+    run: v => calcLoan(ST_LOAN, 0, v, ST_TERM, ST_EXTRA)
+  },
+  {
+    id: 'st-term', heading: 'Loan term', base: ST_TERM,
+    values: [10, 15, 20, 25, 30],
+    fmtVal: v => v + ' yr',
+    run: v => calcLoan(ST_LOAN, 0, ST_RATE, v, ST_EXTRA)
+  },
+  {
+    id: 'st-extra', heading: 'Extra monthly payment', base: ST_EXTRA,
+    values: [0, 100, 200, 300, 500, 750, 1000, 1500, 2000],
+    fmtVal: v => fmt(v),
+    run: v => calcLoan(ST_LOAN, 0, ST_RATE, ST_TERM, v)
+  }
+];
+
+function renderSensTables() {
+  document.getElementById('st-baseline').innerHTML =
+    `Fixed loan amount of <b>${fmt(ST_LOAN)}</b>. Baseline: <b>${fmtPct(ST_RATE)}</b> · <b>${ST_TERM} yr</b> · <b>${fmt(ST_EXTRA)}</b> extra per month. ` +
+    `In each table only that table's variable changes — the other two stay at baseline.`;
+
+  for (const t of ST_TABLES) {
+    const baseRun = t.run(t.base);
+    let html = `<thead><tr><th>${t.heading}</th><th>Monthly payment</th><th>Total interest</th><th>Total cost</th><th>Payoff</th><th>Δ interest vs baseline</th></tr></thead><tbody>`;
+    for (const v of t.values) {
+      const r = t.run(v);
+      const isBase = v === t.base;
+      const d = fmtVar(r.totalInterest - baseRun.totalInterest, true);
+      html += `<tr${isBase ? ' class="base-row"' : ''}>` +
+              `<td class="row-label">${t.fmtVal(v)}</td>` +
+              `<td>${fmt(r.scheduledPayment)}</td>` +
+              `<td>${fmt(r.totalInterest)}</td>` +
+              `<td>${fmt(r.totalCost)}</td>` +
+              `<td>${yrs(r.actualPayments / 12)}</td>` +
+              `<td class="${isBase ? 'var-neutral' : d.cls}">${isBase ? '—' : d.text}</td>` +
+              `</tr>`;
+    }
+    document.getElementById(t.id).innerHTML = html + '</tbody>';
+  }
+}
+
+syncSensInputs();
 calculate();
+renderSensTables();
 </script>
 </body>
 </html>
